@@ -28,7 +28,7 @@ UART_ID = 0
 BAUDRATE = 9600
 LED_PIN = 25
 BLINK_MS = 150
-MAX_BLINK = 20
+MAX_BLINK = 10
 
 # ===== 初始化 ================================================
 uart = UART(UART_ID, baudrate=BAUDRATE, tx=Pin(0), rx=Pin(1))

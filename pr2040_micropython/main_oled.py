@@ -191,14 +191,6 @@ def oled_clear():
     for i in range(len(oled_frame)):
         oled_frame[i] = 0
 
-def oled_scroll_up(lines=1):
-    """向上滚动 lines 行(每行 8 像素/1 页=1 行文字)"""
-    shift = lines * OLED_WIDTH  # 一行 = 128 字节
-    for i in range(len(oled_frame) - shift):
-        oled_frame[i] = oled_frame[i + shift]
-    for i in range(len(oled_frame) - shift, len(oled_frame)):
-        oled_frame[i] = 0
-
 def oled_draw_text_at(text, page, col=0):
     """在指定行(page 0-7)绘制文本"""
     pixels = text_pixels(text, OLED_WIDTH - col)
@@ -210,35 +202,59 @@ def oled_draw_text_at(text, page, col=0):
 def oled_flush():
     """将帧缓冲发送到 OLED"""
     for page in range(8):
-        # 设置页地址
         i2c.writeto(OLED_ADDR, bytes([0x00, 0xB0 + page]))
-        i2c.writeto(OLED_ADDR, bytes([0x00, 0x00]))  # col low
-        i2c.writeto(OLED_ADDR, bytes([0x00, 0x10]))  # col high
-        # 发送该页数据
+        i2c.writeto(OLED_ADDR, bytes([0x00, 0x00]))
+        i2c.writeto(OLED_ADDR, bytes([0x00, 0x10]))
         start = page * OLED_WIDTH
         oled_data(oled_frame[start:start + OLED_WIDTH])
 
-# OLED 文本行缓冲区 (滚动用)
-oled_lines = []  # 存储每行文本
-MAX_LINES = 8   # OLED 最多显示 8 行 (64/8)
+# ===== OLED 单条消息 + 水平滚动 ================================
+MAX_VISIBLE_CHARS = 21  # 128px / 6px每字 ≈ 21字
 
-def oled_add_line(text):
-    """添加一行文本到 OLED，自动滚动"""
-    global oled_lines
-    oled_lines.append(text)
-    if len(oled_lines) > MAX_LINES:
-        oled_lines = oled_lines[-MAX_LINES:]
-    # 重绘
+def oled_show_message(label, text):
+    """
+    在 OLED 中央显示一条消息。
+    如果超过 21 字符，自动水平滚动。
+    label: ">" 或 "<" 表示方向
+    text:  消息内容
+    """
     oled_clear()
-    for i, line in enumerate(oled_lines):
-        oled_draw_text_at(line, i)
-    oled_flush()
+    line = label + " " + text
+    # 第一行: 标签
+    oled_draw_text_at("[" + label.strip() + "]", 0, 0)
+    # 第二行: 状态
+    oled_draw_text_at("RX: " + str(len(text)) + " chars", 1, 0)
+    # 第三行: 分隔线
+    oled_draw_text_at("-" * 21, 2, 0)
+    # 第四行: 消息内容 (居中)
+    if len(line) <= MAX_VISIBLE_CHARS:
+        # 短消息: 居中显示
+        pad = (MAX_VISIBLE_CHARS - len(line)) // 2
+        oled_draw_text_at(" " * pad + line, 4, 0)
+        oled_flush()
+    else:
+        # 长消息: 显示前 21 字并启动水平滚动
+        oled_draw_text_at(line[:MAX_VISIBLE_CHARS], 4, 0)
+        oled_flush()
+        # 水平滚动
+        scroll_text = line + "   "  # 末尾加间隔
+        for offset in range(1, len(scroll_text) - MAX_VISIBLE_CHARS + 1):
+            oled_clear()
+            oled_draw_text_at("[" + label.strip() + "]", 0, 0)
+            oled_draw_text_at("RX: " + str(len(text)) + " chars", 1, 0)
+            oled_draw_text_at("-" * 21, 2, 0)
+            oled_draw_text_at(scroll_text[offset:offset + MAX_VISIBLE_CHARS], 4, 0)
+            oled_flush()
+            time.sleep_ms(250)
+        # 滚动完显示最后几秒再消失
+        time.sleep_ms(1500)
 
 # ===== 初始化 OLED ============================================
 oled_init()
 oled_clear()
-oled_draw_text_at("BT37 + OLED", 0)
-oled_draw_text_at("等待连接...", 2)
+oled_draw_text_at(" BT37 + OLED", 0, 0)
+oled_draw_text_at("=" * 21, 2, 0)
+oled_draw_text_at("  系统就绪", 4, 0)
 oled_flush()
 
 # ===== LED 闪烁 ==============================================
@@ -271,14 +287,13 @@ def handle_received(raw):
     n = len(text)
     print("[手机] " + text + "  (" + str(n) + "字符)")
     blink(n)
-    # OLED 显示
-    oled_add_line("> " + text[:20])
+    # OLED 显示（单条 + 超长水平滚动）
+    oled_show_message(">", text)
     # 自动回复
     reply = "Pico(" + str(n) + "): " + text + "\r\n"
     uart.write(reply)
 
-oled_add_line("系统就绪")
-oled_add_line("等待数据...")
+# 启动后等待接收
 
 # ===== 主循环 ================================================
 while True:
@@ -309,6 +324,6 @@ while True:
             if usb_line:
                 uart.write(usb_line + "\r\n")
                 print("[USB→手机] " + usb_line)
-                oled_add_line("<< " + usb_line[:20])
+                oled_show_message("<", usb_line)
 
     time.sleep_ms(5)
