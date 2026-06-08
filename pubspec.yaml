@@ -36,6 +36,11 @@ dependencies:
   # BLE 蓝牙
   flutter_blue_plus: ^1.34.0
 
+  # SQLite 本地持久化
+  sqflite: ^2.4.0
+  path_provider: ^2.1.0
+  path: ^1.9.0
+
   # HTTP 请求（日志发送）
   http: ^1.2.0
 

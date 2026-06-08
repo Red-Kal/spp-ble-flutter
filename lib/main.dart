@@ -8,13 +8,14 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'services/ble_service.dart';
 import 'services/spp_service.dart';
 import 'services/ble_logger.dart';
+import 'package:http/http.dart' as http;
 
 // ─────────────────────────────────────────────────────────────
 // 入口
 // ─────────────────────────────────────────────────────────────
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  BleLogger.init(); // 启动日志服务
+  await BleLogger.init(); // 启动日志服务（从 SQLite 读取服务器地址）
   runApp(const SppBleApp());
 }
 
@@ -88,6 +89,16 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     return Scaffold(
       appBar: AppBar(
         title: const Text('SPP BLE 蓝牙调试'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            tooltip: '日志服务器设置',
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const SettingsPage()),
+            ),
+          ),
+        ],
         bottom: TabBar(
           controller: _tabCtrl,
           tabs: const [
@@ -605,3 +616,100 @@ class _SppChatPageState extends State<SppChatPage> {
   }
 }
 
+
+
+// ─── 设置页面 ─────────────────────────────────────────────
+class SettingsPage extends StatefulWidget {
+  const SettingsPage({super.key});
+  @override
+  State<SettingsPage> createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
+  final TextEditingController _urlCtrl = TextEditingController();
+  String _statusMsg = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _urlCtrl.text = BleLogger.serverUrl;
+  }
+
+  @override
+  void dispose() {
+    _urlCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _save() async {
+    final url = _urlCtrl.text.trim();
+    if (url.isEmpty) {
+      setState(() => _statusMsg = '请输入服务器地址');
+      return;
+    }
+    await BleLogger.setServerUrl(url);
+    setState(() => _statusMsg = '✅ 已保存: $url/log');
+  }
+
+  Future<void> _test() async {
+    final url = _urlCtrl.text.trim();
+    if (url.isEmpty) return;
+    final clean = url.endsWith('/') ? url.substring(0, url.length - 1) : url;
+    setState(() => _statusMsg = '测试中...');
+    try {
+      final r = await http.get(Uri.parse(clean)).timeout(const Duration(seconds: 5));
+      setState(() => _statusMsg = r.statusCode == 200
+          ? '✅ 连接成功 (${r.statusCode})'
+          : '⚠️ 服务器返回 ${r.statusCode}');
+    } catch (e) {
+      setState(() => _statusMsg = '❌ 连接失败: $e');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('日志服务器设置')),
+      body: ListView(padding: const EdgeInsets.all(20), children: [
+        const Text('服务器地址', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+        TextField(
+          controller: _urlCtrl,
+          style: const TextStyle(fontFamily: 'monospace', fontSize: 14),
+          decoration: InputDecoration(
+            hintText: 'http://192.168.0.10:3322', filled: true,
+            fillColor: Color(0xFF1A1D2E),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            contentPadding: EdgeInsets.all(14),
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text('App 会自动追加 /log 发送日志', style: TextStyle(fontSize: 12, color: Colors.grey[500])),
+        const SizedBox(height: 20),
+        Row(children: [
+          Expanded(child: ElevatedButton.icon(onPressed: _save, icon: const Icon(Icons.save), label: const Text('保存'))),
+          const SizedBox(width: 12),
+          Expanded(child: OutlinedButton.icon(onPressed: _test, icon: const Icon(Icons.wifi_find), label: const Text('测试连接'))),
+        ]),
+        if (_statusMsg.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          Container(width: double.infinity, padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(color: Color(0xFF1A1D2E), borderRadius: BorderRadius.circular(8)),
+            child: Text(_statusMsg, style: TextStyle(fontSize: 13, fontFamily: 'monospace', color: _statusMsg.startsWith('✅') ? Colors.greenAccent : Colors.orangeAccent)),
+          ),
+        ],
+        const SizedBox(height: 24),
+        Container(padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(color: Color(0xFF1A1D2E), borderRadius: BorderRadius.circular(8), border: Border.all(color: Color(0xFF2A2D3E))),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('📡 当前日志服务器', style: TextStyle(fontSize: 14, color: Colors.grey[400])),
+            const SizedBox(height: 8),
+            Text('${BleLogger.serverUrl}/log', style: const TextStyle(fontSize: 13, fontFamily: 'monospace', color: Colors.cyanAccent)),
+            const SizedBox(height: 8),
+            Text('网页查看: ${BleLogger.serverUrl}', style: TextStyle(fontSize: 12, color: Colors.grey[500])),
+          ]),
+        ),
+      ]),
+    );
+  }
+}
