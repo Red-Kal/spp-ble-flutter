@@ -12,20 +12,40 @@ enum BleConnectionState {
 
 /// BLE 服务 — 移植自旧项目 SpBLE.java
 ///
-///  默认 UUID（Nordic UART Service）
-///    UART: 6E400001-B5A3-F393-E0A9-E50E24DCCA9E
-///    TX:   6E400002-B5A3-F393-E0A9-E50E24DCCA9E
-///    RX:   6E400003-B5A3-F393-E0A9-E50E24DCCA9E
+/// 支持多种 UUID 预设：
+///   1. Nordic UART Service（默认）
+///       UART: 6E400001-B5A3-F393-E0A9-E50E24DCCA9E
+///       TX:   6E400002-B5A3-F393-E0A9-E50E24DCCA9E
+///       RX:   6E400003-B5A3-F393-E0A9-E50E24DCCA9E
+///   2. BT37 / FFE0（大夏龙雀 DX-BT37 模块）
+///       UART: 0000FFE0-0000-1000-8000-00805F9B34FB
+///       TX:   0000FFE2-0000-1000-8000-00805F9B34FB
+///       RX:   0000FFE1-0000-1000-8000-00805F9B34FB
 class BleService {
-  // ─── 默认 UUID ────────────────────────────────────────────
-  static const String _defaultUartUuid = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
-  static const String _defaultTxUuid = '6e400002-b5a3-f393-e0a9-e50e24dcca9e';
-  static const String _defaultRxUuid = '6e400003-b5a3-f393-e0a9-e50e24dcca9e';
+  // ─── UUID 预设 ──────────────────────────────────────────
+  static const String presetNordicUart = 'Nordic UART';
+  static const String presetBt37 = 'BT37 (FFE0)';
 
-  // ─── 可自定义的 UUID ─────────────────────────────────────
-  String _uartUuid = _defaultUartUuid;
-  String _txUuid = _defaultTxUuid;
-  String _rxUuid = _defaultRxUuid;
+  static const Map<String, Map<String, String>> presets = {
+    presetNordicUart: {
+      'uart': '6e400001-b5a3-f393-e0a9-e50e24dcca9e',
+      'tx':   '6e400002-b5a3-f393-e0a9-e50e24dcca9e',
+      'rx':   '6e400003-b5a3-f393-e0a9-e50e24dcca9e',
+    },
+    presetBt37: {
+      'uart': '0000ffe0-0000-1000-8000-00805f9b34fb',
+      'tx':   '0000ffe2-0000-1000-8000-00805f9b34fb',
+      'rx':   '0000ffe1-0000-1000-8000-00805f9b34fb',
+    },
+  };
+
+  String _currentPreset = presetNordicUart;
+  String get currentPreset => _currentPreset;
+
+  // ─── 当前 UUID ───────────────────────────────────────────
+  String _uartUuid = presets[presetNordicUart]!['uart']!;
+  String _txUuid = presets[presetNordicUart]!['tx']!;
+  String _rxUuid = presets[presetNordicUart]!['rx']!;
 
   String get uartUuid => _uartUuid;
   String get txUuid => _txUuid;
@@ -76,7 +96,16 @@ class BleService {
   StreamSubscription<List<ScanResult>>? _scanSub;
 
   // ─── 设置 UUID ───────────────────────────────────────────
-  void setUuid({
+  void applyPreset(String presetName) {
+    if (!presets.containsKey(presetName)) return;
+    final p = presets[presetName]!;
+    _uartUuid = p['uart']!;
+    _txUuid = p['tx']!;
+    _rxUuid = p['rx']!;
+    _currentPreset = presetName;
+  }
+
+  void setCustomUuid({
     required String uart,
     required String tx,
     required String rx,
@@ -84,12 +113,11 @@ class BleService {
     _uartUuid = uart;
     _txUuid = tx;
     _rxUuid = rx;
+    _currentPreset = '自定义';
   }
 
   void resetUuid() {
-    _uartUuid = _defaultUartUuid;
-    _txUuid = _defaultTxUuid;
-    _rxUuid = _defaultRxUuid;
+    applyPreset(presetNordicUart);
   }
 
   // ─── 扫描 BLE 设备 ──────────────────────────────────────

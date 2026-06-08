@@ -150,33 +150,71 @@ class _BleScanPageState extends State<_BleScanPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _devices.isEmpty
-          ? Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.bluetooth_searching, size: 64, color: Colors.grey[600]),
-                  const SizedBox(height: 12),
-                  Text('点击下方搜索 BLE 设备', style: TextStyle(color: Colors.grey[500])),
-                ],
-              ),
-            )
-          : ListView.builder(
-              itemCount: _devices.length,
-              itemBuilder: (_, i) {
-                final d = _devices[i];
-                return Card(
-                  margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  child: ListTile(
-                    leading: const Icon(Icons.bluetooth, color: Colors.blueAccent),
-                    title: Text(d.device.localName.isNotEmpty ? d.device.localName : '未知设备'),
-                    subtitle: Text('${d.device.remoteId.str}  RSSI: ${d.rssi}'),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () => widget.onTap(d),
+      body: Column(
+        children: [
+          // UUID 预设选择器
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            color: const Color(0xFF1A1D2E),
+            child: Row(
+              children: [
+                const Icon(Icons.vpn_key, size: 16, color: Colors.grey),
+                const SizedBox(width: 8),
+                const Text('UUID: ', style: TextStyle(fontSize: 13, color: Colors.grey)),
+                Expanded(
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: widget.ble.currentPreset,
+                      isDense: true,
+                      dropdownColor: const Color(0xFF2A2D3E),
+                      style: const TextStyle(fontSize: 13, color: Colors.cyanAccent),
+                      items: BleService.presets.keys.map((name) {
+                        final p = BleService.presets[name]!;
+                        return DropdownMenuItem(
+                          value: name,
+                          child: Text('$name (${p['uart']!.substring(4, 8)})'),
+                        );
+                      }).toList(),
+                      onChanged: (v) {
+                        if (v != null) widget.ble.applyPreset(v);
+                      },
+                    ),
                   ),
-                );
-              },
+                ),
+              ],
             ),
+          ),
+          Expanded(
+            child: _devices.isEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.bluetooth_searching, size: 64, color: Colors.grey[600]),
+                        const SizedBox(height: 12),
+                        Text('点击下方搜索 BLE 设备', style: TextStyle(color: Colors.grey[500])),
+                      ],
+                    ),
+                  )
+                : ListView.builder(
+                    itemCount: _devices.length,
+                    itemBuilder: (_, i) {
+                      final d = _devices[i];
+                      return Card(
+                        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        child: ListTile(
+                          leading: const Icon(Icons.bluetooth, color: Colors.blueAccent),
+                          title: Text(d.device.localName.isNotEmpty ? d.device.localName : '未知设备'),
+                          subtitle: Text('${d.device.remoteId.str}  RSSI: ${d.rssi}'),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () => widget.onTap(d),
+                        ),
+                      );
+                    },
+                  ),
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _toggleScan,
         icon: Icon(_scanning ? Icons.stop : Icons.search),
