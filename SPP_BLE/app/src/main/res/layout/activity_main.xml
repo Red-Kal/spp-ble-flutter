@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#000"
+    tools:context="bt.com.ssp_ble.MainActivity">
+
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="　HC06 　"
+        android:textSize="18sp"
+        android:textColor="#eee"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:id="@+id/devicenam"
+        />
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="　设备地址，RSSI 　"
+        android:textSize="16sp"
+        android:textColor="#eee"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:id="@+id/info"
+        />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:orientation="horizontal"
+        android:layout_marginRight="5dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="2dp"
+
+        >
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:textSize="15sp"
+            android:text="@string/Clear"
+            android:layout_marginRight="3dp"
+            android:layout_marginLeft="3dp"
+            android:id="@+id/mclear"
+            android:onClick="onclick"
+            android:background="@drawable/butsel1"
+            android:textColor="#fff"
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:textSize="16sp"
+            android:background="@drawable/butsel1"
+            android:textColor="#fff"
+            android:id="@+id/connectinfo"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:layout_marginRight="3dp"
+            android:layout_marginLeft="3dp"
+            />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:textSize="16sp"
+            android:background="@drawable/butsel1"
+            android:textColor="#fff"
+            android:text="@string/back"
+            android:layout_marginRight="3dp"
+            android:layout_marginLeft="3dp"
+            android:id="@+id/mback"
+            android:onClick="onclick"
+            />
+    </LinearLayout>
+
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="40dp"
+    android:orientation="horizontal"
+    android:layout_marginRight="5dp"
+    android:layout_marginLeft="5dp"
+    android:layout_marginTop="5dp"
+    android:layout_marginBottom="5dp"
+
+    >
+
+    <CheckBox
+        android:id="@+id/txhex"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginLeft="3dp"
+        android:layout_marginRight="3dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:text="@string/hexsend"
+        android:button="@drawable/checkbox"
+        android:textColor="#fff"
+        android:textSize="12sp" />
+
+    <CheckBox
+        android:id="@+id/rxhex"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginLeft="3dp"
+        android:layout_marginRight="3dp"
+        android:layout_weight="1"
+        android:checked="false"
+        android:gravity="center"
+        android:button="@drawable/checkbox"
+        android:text="@string/hexrec"
+        android:textColor="#fff"
+        android:textSize="12sp" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textSize="16sp"
+        android:background="@drawable/butsel1"
+        android:textColor="#fff"
+        android:text="@string/reconnect"
+        android:layout_marginRight="3dp"
+        android:layout_marginLeft="3dp"
+        android:id="@+id/connect"
+        android:onClick="onclick"
+        />
+
+</LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:orientation="horizontal"
+        android:layout_marginRight="5dp"
+        android:layout_marginLeft="5dp"
+        >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:background="@drawable/roundstyle4"
+            android:layout_marginRight="3dp"
+            android:layout_marginLeft="3dp"
+            android:id="@+id/settime"
+            android:onClick="onclick"
+            >
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="#fff"
+                android:textSize="14sp"
+                android:text="@string/autosent"
+                android:layout_gravity="center"
+                android:gravity="center"
+                />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="#fff"
+                android:textSize="14sp"
+                android:text="0ms"
+                android:id="@+id/autost"
+                android:layout_gravity="center"
+                android:gravity="center"
+                />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:background="@drawable/roundstyle4"
+            android:layout_marginRight="3dp"
+            android:layout_marginLeft="3dp"
+            >
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="#fff"
+                android:textSize="14sp"
+                android:text="RX:0B/s"
+                android:id="@+id/rxspeed"
+                />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="#fff"
+                android:textSize="14sp"
+                android:text="TX:0B/s"
+                android:id="@+id/txspeed"
+                />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:background="@drawable/roundstyle4"
+            android:layout_marginRight="3dp"
+            android:layout_marginLeft="3dp"
+            >
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="#fff"
+                android:textSize="14sp"
+                android:text="RX:0"
+                android:id="@+id/rxcount"
+                />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="#fff"
+                android:textSize="14sp"
+                android:text="TX:0"
+                android:id="@+id/txcount"
+                />
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+    <ScrollView
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="2dp"
+        android:id="@+id/sv"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="1"
+        android:background="@drawable/border_write"
+        android:layout_marginRight="6dp"
+        android:layout_marginLeft="6dp"
+        >
+        <LinearLayout
+            android:orientation="vertical"
+            android:id="@+id/layout"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            >
+            <TextView
+                android:id="@+id/Text1"
+                android:layout_width="fill_parent"
+                android:scrollbars="vertical"
+                android:hint="@string/recdata"
+                android:textSize="14.0sp"
+                android:layout_height="fill_parent"
+                android:textColor="#eee"
+                />
+        </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="2dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginLeft="5dp"
+        >
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:id="@+id/datain"
+            android:textColor="#fff"
+            />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:textColor="#222"
+            android:textSize="16sp"
+            android:text="@string/autos"
+            android:id="@+id/atxdata"
+            android:onClick="onclick"
+            android:background="@drawable/butsel2"
+            android:layout_marginLeft="3dp"
+            android:layout_marginRight="3dp"
+            />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:textColor="#222"
+            android:textSize="16sp"
+            android:text="@string/send"
+            android:id="@+id/txdata"
+            android:onClick="onclick"
+            android:background="@drawable/butsel2"
+            android:layout_marginLeft="3dp"
+            android:layout_marginRight="3dp"
+            />
+
+    </LinearLayout>
+
+
+
+</LinearLayout>

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="bt.com.ssp_ble.MainActivity">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:text="蓝牙助手"
+        android:gravity="center"
+        android:textColor="#fff"
+        android:textSize="18sp"
+        android:background="@color/colorPrimary"
+        android:id="@+id/textView2"
+        android:visibility="gone"
+        />
+
+<TextView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="50dp"
+    android:layout_gravity="center"
+    android:gravity="center"
+    android:textColor="#000"
+    android:textSize="24sp"
+    android:text="深圳大夏龙雀科技有限公司"
+    />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:textColor="#000"
+        android:textSize="18sp"
+        android:text="Shenzhen DX-Smart Technology Co.Ltd"
+        />
+
+
+    <ImageView
+        android:layout_width="260dp"
+        android:layout_height="260dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="30dp"
+        android:layout_marginBottom="50dp"
+        android:layout_weight="1"
+        android:src="@drawable/smartl"
+        />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="3"
+        android:visibility="gone"
+        />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="http://www.szdx-smart.com"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:textSize="18sp"
+        android:layout_marginBottom="20dp"
+        />
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/viere"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:textSize="12sp"
+        android:layout_marginBottom="20dp"
+        />
+
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginLeft="20dp"
+        android:text="进入"
+        android:id="@+id/button"
+        android:visibility="gone"
+        />
+
+
+</LinearLayout>

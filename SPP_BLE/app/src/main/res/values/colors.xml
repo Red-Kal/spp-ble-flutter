@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#ff9501</color>
+
+    <color name="butcolorsel">#ff9501</color>
+    <color name="butcolorunsel">#c0c0c0</color>
+    <color name="software_textColor_ing">#FF1C94EA</color>
+    <color name="software_textColor_selected">#FF888888</color>
+    <color name="software_textColor_unselected">#FF555555</color>
+
+    <color name="black">#ff000000</color>
+    <color name="white">#ffeeeeee</color>
+
+    <color name="gwhite">#553F51B5</color>
+    <color name="gwhite1">#333F51B5</color>
+
+
+</resources>

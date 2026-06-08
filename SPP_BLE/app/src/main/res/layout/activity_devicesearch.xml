@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+	android:background="#000"
+
+	>
+    <LinearLayout
+		android:layout_width="fill_parent"
+		android:layout_height="40dp"
+		android:orientation="horizontal"
+		android:background="#000"
+		android:layout_marginTop="5dp"
+		android:layout_marginBottom="5dp"
+		>
+		<Button 
+
+			android:id="@+id/refresh"
+			android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+		    android:textSize="14sp"
+		    android:text="@string/scand_device"
+			android:background="@drawable/butsel1"
+			android:textColor="#fff"
+			android:layout_weight="1"
+			android:layout_marginLeft="2dp"
+			android:layout_marginRight="2dp"
+			/>
+		
+	    <ProgressBar
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:id="@+id/progress_bar"
+            android:indeterminate="false"
+			android:layout_weight="1"
+			android:visibility="gone"
+			android:layout_gravity="center"
+			android:layout_marginLeft="2dp"
+			android:layout_marginRight="2dp"
+			/>
+
+
+		<Button
+			android:id="@+id/setUUID"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:onClick="SetUUID"
+			android:text="@string/setUUID"
+			android:textSize="14sp"
+			android:background="@drawable/butsel1"
+			android:textColor="#fff"
+			android:layout_weight="1"
+			android:layout_marginLeft="2dp"
+			android:layout_marginRight="2dp"
+			/>
+
+	    <Button
+			android:id="@+id/about"
+			android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+		    android:textSize="14sp"
+		    android:text="@string/aboutus"
+			android:background="@drawable/butsel1"
+			android:textColor="#fff"
+			android:layout_weight="1"
+			android:layout_gravity="center"
+			android:layout_marginLeft="2dp"
+			android:layout_marginRight="2dp"
+			/>
+	</LinearLayout>
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginLeft="10dp"
+		android:layout_marginRight="10dp"
+		android:layout_marginTop="4dp"
+		android:background="@drawable/tvbar1"
+		android:orientation="vertical"
+		android:visibility="gone">
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal">
+
+			<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginRight="10dp"
+				android:text="@string/serviceUUId"
+				android:textColor="#222"
+				android:textSize="16sp" />
+
+			<EditText
+				android:id="@+id/serviceinput"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:digits="0123456789ABCDEFabcdef"
+				android:maxLength="32"
+				android:textSize="14sp" />
+		</LinearLayout>
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal">
+
+			<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginRight="10dp"
+				android:text="@string/NotifyUUID"
+				android:textColor="#222"
+				android:textSize="16sp" />
+
+			<EditText
+				android:id="@+id/rxinput"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:digits="0123456789ABCDEFabcdef"
+				android:maxLength="32"
+				android:textSize="14sp" />
+		</LinearLayout>
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal">
+
+			<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginRight="10dp"
+				android:text="@string/WriteUID"
+				android:textColor="#222"
+				android:textSize="16sp" />
+
+			<EditText
+				android:id="@+id/txinput"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:digits="0123456789ABCDEFabcdef"
+				android:maxLength="32"
+				android:textSize="14sp" />
+		</LinearLayout>
+
+	</LinearLayout>
+
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:orientation="vertical"
+		android:layout_weight="1"
+		android:layout_marginRight="8dp"
+		android:layout_marginLeft="8dp"
+		>
+
+
+<TextView
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:layout_gravity="center"
+	android:gravity="center"
+	android:textSize="16sp"
+	android:background="@drawable/roundstyle3"
+	android:text="@string/device_list"
+	android:layout_marginTop="5dp"
+	android:layout_marginBottom="2dp"
+	android:textColor="#000"
+	/>
+
+    <ListView
+
+        android:id="@+id/lvBTDevices"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+		android:divider="#fff"
+		android:dividerHeight="2px"
+		/>
+
+	</LinearLayout>
+</LinearLayout>

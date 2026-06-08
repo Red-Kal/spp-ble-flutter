@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    >
+
+  <TextView
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="5dp"
+      android:layout_gravity="center"
+      android:gravity="center"
+      android:textColor="#000"
+      android:textSize="24sp"
+      android:text="DX-SMART"
+      />
+
+  <TextView
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="1dp"
+      android:layout_gravity="center"
+      android:gravity="center"
+      android:textColor="#FF890410"
+      android:textSize="20sp"
+      android:text="Internet of Things"
+      />
+  <TextView
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="1dp"
+      android:layout_gravity="center"
+      android:gravity="center"
+      android:textColor="#FF890410"
+      android:textSize="20sp"
+      android:text="消费物联网领导者"
+      />
+
+
+  <TextView
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="10dp"
+      android:layout_gravity="center"
+      android:gravity="center"
+      android:textColor="#111"
+      android:textSize="22sp"
+      android:text="@string/contanus"
+      />
+
+  <TextView
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="6dp"
+      android:layout_gravity="center"
+      android:gravity="center"
+      android:textColor="#111"
+      android:textSize="18sp"
+      android:text="@string/telstr"
+      />
+  <TextView
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="3dp"
+      android:layout_gravity="center"
+      android:gravity="center"
+      android:textColor="#111"
+      android:textSize="18sp"
+      android:text="@string/email"
+      />
+
+
+  <Button
+      style="@android:style/Widget.Holo.Light.Button"
+      android:layout_width="150dp"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="5dp"
+      android:layout_gravity="center"
+      android:background="#FF303030"
+      android:text="@string/vistweb"
+      android:id="@+id/links"
+      android:textColor="#fff" />
+
+
+  <ImageView
+      android:layout_marginTop="20dp"
+      android:layout_width="200dp"
+      android:layout_height="200dp"
+      android:layout_gravity="center"
+      android:layout_weight="1"
+      android:src="@drawable/logos"
+      android:layout_marginBottom="30dp"
+      android:visibility="gone"
+      />
+
+  <TextView
+      android:layout_marginTop="10dp"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:text="http://www.szdx-smart.com"
+      android:layout_gravity="center"
+      android:gravity="center"
+      android:textSize="18sp"
+      android:textColor="#FF303030"
+      />
+
+  <TextView
+      android:layout_marginTop="5dp"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:text="@string/address"
+      android:layout_gravity="center"
+      android:gravity="center"
+      android:textSize="14sp"
+      android:textColor="#FF808080"
+      />
+
+  <TextView
+      android:layout_marginTop="10dp"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:text="Power By lisn3188@163.com"
+      android:layout_gravity="center"
+      android:gravity="center"
+      android:textSize="16sp"
+      android:visibility="gone"
+      />
+
+
+
+
+</LinearLayout>

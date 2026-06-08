@@ -1,0 +1,71 @@
+<resources>
+    <string name="app_name">蓝牙助手</string>
+
+
+    <string name="not_connected">蓝牙未连接</string>
+    <string name="bt_not_enabled_leaving">蓝牙未启动，退出.</string>
+    <string name="title_connecting">正在连接...</string>
+    <string name="title_connected_to">已连接到: </string>
+    <string name="title_not_connected">蓝牙未连接</string>
+
+
+    <!--  DeviceListActivity -->
+    <string name="scanning">正在扫描新的蓝牙设备...</string>
+    <string name="select_device">请选择一个设备连接</string>
+    <string name="none_paired">没有已配对的设备</string>
+    <string name="none_found">没有发现新设备 \n提示:需要打开APP的定位权限才能搜索到设备</string>
+    <string name="title_paired_devices">已配对的设备</string>
+    <string name="title_other_devices">其他设备/在线的设备</string>
+    <string name="button_scan">扫描新设备</string>
+
+    <string name="sctextsize">16sp</string>
+
+    <string name="scand_device">搜索设备</string>
+    <string name="setUUID">设置UUID</string>
+    <string name="aboutus">关于我们</string>
+    <string name="device_list">蓝牙设备列表</string>
+    <string name="Clear">清屏</string>
+    <string name="connecting">正在连接</string>
+    <string name="connectOK">连接成功</string>
+    <string name="disconnect">连接已断开</string>
+    <string name="back">返回</string>
+    <string name="hexsend">十六进制发送</string>
+    <string name="hexrec">十六进制接收</string>
+    <string name="discon">断开连接</string>
+    <string name="reconnect">重新连接</string>
+    <string name="autosent">自动发送周期</string>
+    <string name="recdata">接收数据信息</string>
+    <string name="uuids">选定模块或指定UUID</string>
+
+    <string name="nomalm">常规模组</string>
+    <string name="bt16m">BT16 模块</string>
+    <string name="spmod">指定UUID</string>
+
+    <string name="serviceUUId">Service UUID设置</string>
+    <string name="NotifyUUID">Notify UUID设置</string>
+    <string name="WriteUID">Write UUID设置</string>
+    <string name="butok">确定</string>
+    <string name="contanus">联系我们</string>
+    <string name="telstr">电话:0755-29978125                 </string>
+    <string name="email">邮箱:sales@szdx-smart.com</string>
+    <string name="vistweb">访问大夏龙雀</string>
+    <string name="address">地址:广东省深圳市宝安区固戍二路裕兴科技工业园(裕兴创谷)C栋511</string>
+
+    <string name="viere">版本号:V1.1</string>
+
+    <string name="send">发送</string>
+    <string name="autos">自动发送</string>
+    <string name="wrongUUID">错误的 uuid ,请输入32位有效的uuid</string>
+    <string name="stopsend">停止发送</string>
+    <string name="clickaganstr">再次点击返回键退出</string>
+    <string name="waring">警告</string>
+    <string name="checkexit">蓝牙串口已经连接远程设备，如果退出程序将断开连接！</string>
+    <string name="canled">取消</string>
+    <string name="connectf">请先连接蓝牙设备</string>
+    <string name="setautos">设置定时发送</string>
+    <string name="psetautos">请设置自动发送周期时间</string>
+    <string name="autosinf">设置自动发送周期</string>
+    <string name="autodiv">间隔[ms]:</string>
+
+
+</resources>

@@ -1,0 +1,70 @@
+<resources>
+    <string name="app_name">DX-SMART</string>
+
+
+    <string name="not_connected">蓝牙未连接</string>
+    <string name="bt_not_enabled_leaving">蓝牙未启动，退出.</string>
+    <string name="title_connecting">正在连接...</string>
+    <string name="title_connected_to">已连接到: </string>
+    <string name="title_not_connected">蓝牙未连接</string>
+
+    <!--  DeviceListActivity -->
+    <string name="scanning">正在扫描新的蓝牙设备...</string>
+    <string name="select_device">请选择一个设备连接</string>
+    <string name="none_paired">没有已配对的设备</string>
+    <string name="none_found">没有发现新设备 \n提示:需要打开APP的定位权限才能搜索到设备</string>
+    <string name="title_paired_devices">已配对的设备</string>
+    <string name="title_other_devices">其他设备/在线的设备</string>
+    <string name="button_scan">扫描新设备</string>
+
+    <string name="sctextsize">14sp</string>
+
+    <string name="scand_device">Search Device</string>
+    <string name="setUUID">Set UUID</string>
+    <string name="aboutus">About Us</string>
+    <string name="device_list">Bluetooth Device List</string>
+    <string name="Clear">ClearScreen</string>
+    <string name="connecting">Connecting</string>
+    <string name="connectOK">Connected</string>
+    <string name="disconnect">Disconnected</string>
+    <string name="back">Return</string>
+    <string name="hexsend">Hex Transmit</string>
+    <string name="hexrec">Hex Receive</string>
+    <string name="discon">Disconnect</string>
+    <string name="reconnect">Reconnect</string>
+    <string name="autosent">Auto Send Cycle</string>
+    <string name="recdata">Receive Data Information</string>
+    <string name="uuids">Select module / specify UUID</string>
+
+    <string name="nomalm">Regular Module</string>
+    <string name="bt16m">BT16 Module</string>
+    <string name="spmod">Specify UUID</string>
+
+    <string name="serviceUUId">Set Service UUID</string>
+    <string name="NotifyUUID">Set Notify UUID</string>
+    <string name="WriteUID">Set Write UUID</string>
+    <string name="butok">OK</string>
+    <string name="contanus">Contact Us</string>
+    <string name="telstr">Tel:0755-29978125                 </string>
+    <string name="email">E-Mail:sales@szdx-smart.com</string>
+    <string name="vistweb">Visit DX-SMART</string>
+    <string name="address">Address：511, Building C, Yuxing Technology Industrial Park (Yuxing Chuanggu), Gushu Second Road,
+        Bao'an District, Shenzhen City, Guangdong Province, China</string>
+
+    <string name="viere">Version:V1.1</string>
+
+    <string name="send">Send</string>
+    <string name="autos">Auto Send</string>
+    <string name="wrongUUID">Wrong uuid, please enter a 32-bit valid UUID</string>
+    <string name="stopsend">Stop Sending</string>
+    <string name="clickaganstr">Click the return key again to exit</string>
+    <string name="waring">Warning</string>
+    <string name="checkexit">Bluetooth serial port has been connected to remote devices, if the exit program will disconnect!</string>
+    <string name="canled">Cancel</string>
+    <string name="connectf">Please connect the Bluetooth device first</string>
+    <string name="setautos">Set Auto Send time</string>
+    <string name="psetautos">Please set the automatic send cycle time</string>
+    <string name="autosinf">Set the auto sending cycle</string>
+    <string name="autodiv">Interval[ms]:</string>
+
+</resources>
