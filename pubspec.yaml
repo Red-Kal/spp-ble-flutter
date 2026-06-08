@@ -36,6 +36,9 @@ dependencies:
   # BLE 蓝牙
   flutter_blue_plus: ^1.34.0
 
+  # HTTP 请求（日志发送）
+  http: ^1.2.0
+
   # 经典蓝牙 SPP（通过 MethodChannel 调用原生 Android API）
 
 dev_dependencies:

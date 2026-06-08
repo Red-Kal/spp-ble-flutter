@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'ble_logger.dart';
 
 /// BLE 连接状态
 enum BleConnectionState {
@@ -103,6 +104,11 @@ class BleService {
     _txUuid = p['tx']!;
     _rxUuid = p['rx']!;
     _currentPreset = presetName;
+    BleLogger.info('BLE', '切换 UUID 预设: $presetName', {
+      'uart': _uartUuid,
+      'tx': _txUuid,
+      'rx': _rxUuid,
+    });
   }
 
   void setCustomUuid({
@@ -125,6 +131,7 @@ class BleService {
     if (_isScanning) return;
     _foundDevices.clear();
     _isScanning = true;
+    BleLogger.info('BLE', '开始扫描设备');
 
     // 确保蓝牙已开启
     try {
@@ -164,6 +171,7 @@ class BleService {
     _isScanning = false;
     await _scanSub?.cancel();
     _scanSub = null;
+    BleLogger.info('BLE', '停止扫描，发现 ${_foundDevices.length} 个设备');
   }
 
   // ─── 连接设备 ────────────────────────────────────────────
@@ -185,12 +193,17 @@ class BleService {
       _connectionSub = device.connectionState.listen((state) {
         if (state == BluetoothConnectionState.disconnected) {
           if (_state == BleConnectionState.connected) {
-            // 确实是已连接状态下的断开
+            BleLogger.warn('BLE', '设备已断开连接', {'addr': device.remoteId.str});
             _cleanup();
             _setState(BleConnectionState.disconnected);
           }
-          // 忽略连接过程中的 disconnected 事件（旧状态残留）
         }
+      });
+
+      BleLogger.info('BLE', '正在连接...', {
+        'name': device.localName,
+        'addr': device.remoteId.str,
+        'preset': _currentPreset,
       });
 
       // 连接（自动发现服务 + 协商 MTU）
@@ -200,10 +213,15 @@ class BleService {
       await Future.delayed(const Duration(milliseconds: 300));
 
       _setState(BleConnectionState.connected);
+      BleLogger.info('BLE', '连接成功', {
+        'name': device.localName,
+        'addr': device.remoteId.str,
+      });
 
       // 发现服务
       await _discoverServices();
     } catch (e) {
+      BleLogger.error('BLE', '连接失败', {'error': e.toString()});
       _cleanup();
       _setState(BleConnectionState.disconnected);
       rethrow;
@@ -223,8 +241,17 @@ class BleService {
     );
 
     if (uartService == null) {
+      BleLogger.error('BLE', '服务未找到', {
+        'expected_uuid': _uartUuid,
+        'available_services': services.map((s) => s.uuid.toString()).toList(),
+      });
       throw Exception('Service not found: $_uartUuid');
     }
+
+    BleLogger.info('BLE', '服务发现成功', {
+      'service': _uartUuid,
+      'total_services': services.length,
+    });
 
     // 查找 TX 特征值（写入）
     final txGuid = Guid(_txUuid);
@@ -241,15 +268,36 @@ class BleService {
     );
 
     if (_txCharacteristic == null) {
+      BleLogger.error('BLE', 'TX 特征值未找到', {
+        'expected_tx': _txUuid,
+        'available_chars': uartService.characteristics.map((c) => c.uuid.toString()).toList(),
+      });
       throw Exception('TX characteristic not found: $_txUuid');
     }
     if (_rxCharacteristic == null) {
+      BleLogger.error('BLE', 'RX 特征值未找到', {
+        'expected_rx': _rxUuid,
+        'available_chars': uartService.characteristics.map((c) => c.uuid.toString()).toList(),
+      });
       throw Exception('RX characteristic not found: $_rxUuid');
     }
 
+    BleLogger.info('BLE', '特征值已找到', {
+      'tx': _txUuid,
+      'rx': _rxUuid,
+      'tx_properties': _txCharacteristic!.properties.toString(),
+    });
+
     // 启用通知
-    await _rxCharacteristic!.setNotifyValue(true);
+    try {
+      await _rxCharacteristic!.setNotifyValue(true);
+      BleLogger.info('BLE', '通知已启用');
+    } catch (e) {
+      BleLogger.warn('BLE', '启用通知失败', {'error': e.toString()});
+      rethrow;
+    }
     _notificationSub = _rxCharacteristic!.value.listen((data) {
+      BleLogger.debug('BLE', '收到数据', {'len': data.length, 'hex': data.take(20).map((b) => b.toRadixString(16).padLeft(2,'0')).join(' ')});
       _dataController.add(Uint8List.fromList(data));
     });
   }
@@ -257,32 +305,41 @@ class BleService {
   // ─── 写入数据 ────────────────────────────────────────────
   Future<void> write(Uint8List data) async {
     if (_txCharacteristic == null) {
+      BleLogger.error('BLE', '写入失败: 特征值为空');
       throw Exception('特征值为空，请重新连接');
     }
     if (_state != BleConnectionState.connected) {
+      BleLogger.error('BLE', '写入失败: 设备已断开');
       throw Exception('设备已断开');
     }
 
     final props = _txCharacteristic!.properties;
+    final hexPreview = data.length <= 20
+        ? data.map((b) => b.toRadixString(16).padLeft(2,'0')).join(' ')
+        : '${data.take(20).map((b) => b.toRadixString(16).padLeft(2,'0')).join(' ')}...';
 
-    // Nordic UART (6E400002): 优先 WriteWithResponse
-    // BT37 (FFE2): 只支持 WriteWithoutResponse
-    // 先试 withResponse, 若失败再试 withoutResponse
+    BleLogger.debug('BLE', '写入数据', {'len': data.length, 'hex': hexPreview});
+
     if (props.write) {
       try {
         await _txCharacteristic!.write(data, withoutResponse: false);
+        BleLogger.debug('BLE', '写入成功(withResponse)');
         return;
       } catch (e) {
-        // 如果写带响应失败，且支持无响应，再试一次
+        BleLogger.debug('BLE', 'writeWithResponse 失败，尝试 withoutResponse', {'error': e.toString()});
         if (props.writeWithoutResponse) {
           await _txCharacteristic!.write(data, withoutResponse: true);
+          BleLogger.debug('BLE', '写入成功(withoutResponse)');
           return;
         }
+        BleLogger.error('BLE', '写入失败', {'error': e.toString()});
         rethrow;
       }
     } else if (props.writeWithoutResponse) {
       await _txCharacteristic!.write(data, withoutResponse: true);
+      BleLogger.debug('BLE', '写入成功(withoutResponse)');
     } else {
+      BleLogger.error('BLE', '特征值不可写入', {'props': props.toString()});
       throw Exception('特征值不可写入');
     }
   }
@@ -302,6 +359,7 @@ class BleService {
   // ─── 断开连接 ────────────────────────────────────────────
   Future<void> disconnect() async {
     if (_device != null) {
+      BleLogger.info('BLE', '主动断开连接', {'addr': _device!.remoteId.str});
       try {
         await _device!.disconnect();
       } catch (_) {}

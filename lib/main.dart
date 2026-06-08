@@ -7,12 +7,14 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 import 'services/ble_service.dart';
 import 'services/spp_service.dart';
+import 'services/ble_logger.dart';
 
 // ─────────────────────────────────────────────────────────────
 // 入口
 // ─────────────────────────────────────────────────────────────
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  BleLogger.init(); // 启动日志服务
   runApp(const SppBleApp());
 }
 
@@ -59,6 +61,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     _tabCtrl.dispose();
     _ble.dispose();
     _spp.dispose();
+    BleLogger.dispose();
     super.dispose();
   }
 
@@ -352,6 +355,7 @@ class _BleChatPageState extends State<BleChatPage> {
   }
 
   Future<void> _connect() async {
+    BleLogger.info('UI', '用户点击连接', {'device': widget.device.localName});
     try {
       await widget.ble.connect(widget.device);
       _speedTimer = Timer.periodic(const Duration(milliseconds: 500), (_) {
@@ -362,7 +366,9 @@ class _BleChatPageState extends State<BleChatPage> {
       });
       widget.ble.readRssi();
       Timer.periodic(const Duration(seconds: 2), (_) => widget.ble.readRssi());
+      BleLogger.info('UI', '连接成功，开始RSSI定时读取');
     } catch (e) {
+      BleLogger.error('UI', '连接失败', {'error': e.toString()});
       if (mounted) _showSnack('连接失败: $e');
     }
   }
@@ -377,12 +383,21 @@ class _BleChatPageState extends State<BleChatPage> {
     final text = _inputCtrl.text.trim();
     if (text.isEmpty) return;
     final data = _txHex ? _hexStringToBytes(text) : Uint8List.fromList(utf8.encode(text));
+    BleLogger.info('UI', '用户发送数据', {
+      'len': data.length,
+      'hex': _txHex,
+      'preview': text.length > 50 ? '${text.substring(0, 50)}...' : text,
+    });
     try {
       await widget.ble.write(data);
       setState(() { _txCount += data.length; _messages.add('>> ${_formatData(data, _txHex)}'); });
       _inputCtrl.clear();
       _scrollToBottom();
-    } catch (e) { _showSnack('发送失败: $e'); }
+      BleLogger.debug('UI', '发送成功');
+    } catch (e) {
+      BleLogger.error('UI', '发送失败', {'error': e.toString()});
+      _showSnack('发送失败: $e');
+    }
   }
 
   void _showSnack(String msg) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
