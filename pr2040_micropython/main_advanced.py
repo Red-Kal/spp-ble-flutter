@@ -88,7 +88,7 @@ def process_command(cmd: str):
             uart.write((arg + "\r\n").encode())
             time.sleep_ms(500)
             if uart.any():
-                resp = uart.read().decode("utf-8", errors="replace")
+                resp = uart.read().decode("utf-8")
                 send_to_phone(f"AT回复: {resp.strip()}")
             else:
                 send_to_phone("AT无回复 (确认模块处于命令模式)")
@@ -131,7 +131,7 @@ while True:
                 if not line:
                     continue
 
-                text = line.decode("utf-8", errors="replace")
+                text = line.decode("utf-8")
                 n = len(text)
 
                 print(f"[收] {text}")

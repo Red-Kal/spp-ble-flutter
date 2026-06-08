@@ -58,7 +58,7 @@ while True:
         if raw is None or len(raw) == 0:
             continue
 
-        text = raw.decode("utf-8", errors="replace").strip()
+        text = raw.decode("utf-8").strip()
         char_count = len(text)
 
         print(f"\n[收到] ({char_count}字符): {text}")
