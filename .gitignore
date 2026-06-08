@@ -17,6 +17,7 @@ Thumbs.db
 
 # Android
 *.apk
+!spp-ble-flutter-*.apk
 *.aab
 local.properties
 
