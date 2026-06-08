@@ -19,6 +19,7 @@ PR2040 + BT37 蓝牙模块 - 进阶版
 
 from machine import Pin, UART
 import time, sys
+import select
 
 # ===== 配置 ==================================================
 UART_ID = 0
@@ -34,6 +35,10 @@ led.off()
 
 auto_reply = True
 buf = b""  # UART 接收缓冲区
+
+# USB 标准输入轮询器
+usb_poller = select.poll()
+usb_poller.register(sys.stdin, select.POLLIN)
 
 def blink(n):
     n = min(n, MAX_BLINK)
@@ -147,15 +152,13 @@ while True:
                     uart.write(reply.encode())
                     print(f"[发] {reply.strip()}")
 
-    # USB 串口输入转发到手机（Thonny/PuTTY 输入）
-    # 取消注释以下代码启用 USB→蓝牙转发
-    """
-    import select
-    if select.select([sys.stdin], [], [], 0)[0]:
-        usb_line = sys.stdin.readline().strip()
+    # USB 串口输入 (Thonny Shell → 手机)
+    if usb_poller.poll(0):
+        usb_line = sys.stdin.readline()
         if usb_line:
-            uart.write((usb_line + "\r\n").encode())
-            print(f"[USB→蓝牙] {usb_line}")
-    """
+            usb_line = usb_line.strip()
+            if usb_line:
+                uart.write((usb_line + "\r\n").encode())
+                print(f"[USB→手机] {usb_line}")
 
     time.sleep_ms(5)
