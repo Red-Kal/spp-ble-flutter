@@ -1,0 +1,12 @@
+{
+  "name": "ble-log-server",
+  "version": "1.0.0",
+  "description": "BLE 调试日志服务器 - 接收 App 日志并展示",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0"
+  }
+}
