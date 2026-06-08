@@ -59,31 +59,49 @@ def blink(n):
 
 blink(3)
 
+# ===== 数据处理函数 ==========================================
+def _handle_received(raw):
+    """处理收到的数据（按行或按块）"""
+    if not raw or len(raw) == 0:
+        return
+    try:
+        text = raw.decode("utf-8")
+    except:
+        text = str(raw)
+    n = len(text)
+    print("[手机] " + text + "  (" + str(n) + "字符)")
+    blink(n)
+    # 自动回复
+    reply = "Pico收到(" + str(n) + "字符): " + text + "\r\n"
+    uart.write(reply)
+
 # ===== 缓冲区 ================================================
-uart_buf = b""   # 蓝牙串口接收缓冲区
+uart_buf = b""       # 蓝牙串口接收缓冲区
+last_recv_time = 0   # 上次收到数据的时间
 
 # ===== 主循环 ================================================
 while True:
+    now = time.ticks_ms()
+
     # ─── 1. 检查蓝牙 (手机 → BT37 → Pico) ─────────────
     if uart.any():
         chunk = uart.read()
         if chunk:
             uart_buf += chunk
-            # 按换行分割处理
-            while b"\n" in uart_buf:
-                line, uart_buf = uart_buf.split(b"\n", 1)
+            last_recv_time = now
+
+            # 按换行分割处理 (手机 App 可能带 \\r\\n)
+            while b"\\n" in uart_buf:
+                line, uart_buf = uart_buf.split(b"\\n", 1)
                 line = line.strip()
                 if not line:
                     continue
+                _handle_received(line)
 
-                text = line.decode("utf-8")
-                n = len(text)
-                print(f"[手机] {text}  ({n}字符)")
-                blink(n)
-
-                # 自动回复
-                reply = f"Pico收到({n}字符): {text}\r\n"
-                uart.write(reply)
+    # 缓冲区有数据但没换行 -> 等 200ms 超时就处理
+    if uart_buf and (now - last_recv_time > 200):
+        _handle_received(uart_buf.strip())
+        uart_buf = b""
 
     # ─── 2. 检查 USB 串口输入 (Thonny Shell → 手机) ──
     #     select.poll() 非阻塞检查，0 超时 = 立即返回

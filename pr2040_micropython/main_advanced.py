@@ -4,8 +4,8 @@ PR2040 + BT37 蓝牙模块 - 进阶版
 功能:
   1. 手机App ↔ BT37 ↔ PR2040 双向收发
   2. 收到消息: 按字符数闪烁LED + 自动回复
-  3. AT 命令透传 (通过蓝牙发 AT 指令给 BT37 模块)
-  4. 定时上报状态
+  3. AT 命令透传
+  4. 超时兜底: 无换行也处理数据
 
 指令系统 (从手机发送):
   #help     - 显示帮助
@@ -21,22 +21,19 @@ from machine import Pin, UART
 import time, sys
 import select
 
-# ===== 配置 ==================================================
 UART_ID = 0
 BAUDRATE = 9600
 LED_PIN = 25
 BLINK_MS = 150
 MAX_BLINK = 30
 
-# ===== 初始化 ================================================
 uart = UART(UART_ID, baudrate=BAUDRATE, tx=Pin(0), rx=Pin(1))
 led  = Pin(LED_PIN, Pin.OUT)
 led.off()
 
 auto_reply = True
-buf = b""  # UART 接收缓冲区
+buf = b""
 
-# USB 标准输入轮询器
 usb_poller = select.poll()
 usb_poller.register(sys.stdin, select.POLLIN)
 
@@ -49,116 +46,118 @@ def blink(n):
         time.sleep_ms(BLINK_MS)
 
 def send_to_phone(text):
-    """通过 BT37 发送文本到手机"""
     uart.write((text + "\r\n").encode("utf-8"))
 
 def info_str():
-    import machine
-    import uos
-    return (
-        f"Pico RP2040\r\n"
-        f"频率: {machine.freq() // 1000000}MHz\r\n"
-        f"固件: {uos.uname().version}\r\n"
-        f"UART: {BAUDRATE}bps 8N1\r\n"
-        f"LED: GP{LED_PIN}"
-    )
+    import machine, uos
+    return ("Pico RP2040\r\n"
+            f"频率: {machine.freq() // 1000000}MHz\r\n"
+            f"固件: {uos.uname().version}\r\n"
+            f"UART: {BAUDRATE}bps 8N1\r\n"
+            f"LED: GP{LED_PIN}")
 
-def process_command(cmd: str):
-    """处理来自手机的命令"""
+def _process_line(raw):
+    """处理一行或一块数据"""
+    global auto_reply, buf
+    line = raw.strip()
+    if not line:
+        return
+    try:
+        text = line.decode("utf-8")
+    except:
+        text = str(line)
+    n = len(text)
+    print("[收] " + text)
+
+    blink(n)
+    if text.startswith("#"):
+        process_command(text)
+    elif auto_reply:
+        reply = "Pico: 收到" + str(n) + "字符 -> " + text + "\r\n"
+        uart.write(reply.encode())
+        print("[发] " + reply.strip())
+
+def process_command(cmd):
     global auto_reply
     parts = cmd.strip().split(maxsplit=1)
     instruction = parts[0].lower()
     arg = parts[1] if len(parts) > 1 else ""
 
     if instruction == "#help":
-        send_to_phone(
-            "可用指令:\r\n"
+        send_to_phone("可用指令:\r\n"
             "  #help        - 显示本帮助\r\n"
             "  #info        - Pico 信息\r\n"
             "  #blink N     - LED闪烁N次\r\n"
-            "  #at <CMD>    - 透传AT指令给BT37\r\n"
+            "  #at <CMD>    - 透传AT指令\r\n"
             "  #reply on/off - 自动回复开关\r\n"
             "  #name <NAME> - 修改BT37蓝牙名\r\n"
-            "  #reset       - 重启BT37"
-        )
+            "  #reset       - 重启BT37")
     elif instruction == "#info":
         send_to_phone(info_str())
     elif instruction == "#blink":
-        try:
-            blink(int(arg))
-        except:
-            send_to_phone("用法: #blink N")
+        try: blink(int(arg))
+        except: send_to_phone("用法: #blink N")
     elif instruction == "#at":
         if arg:
             uart.write((arg + "\r\n").encode())
             time.sleep_ms(500)
             if uart.any():
                 resp = uart.read().decode("utf-8")
-                send_to_phone(f"AT回复: {resp.strip()}")
+                send_to_phone("AT回复: " + resp.strip())
             else:
-                send_to_phone("AT无回复 (确认模块处于命令模式)")
+                send_to_phone("AT无回复")
         else:
-            send_to_phone("用法: #at <AT指令>, 如 #at AT+VERSION")
+            send_to_phone("用法: #at <AT指令>")
     elif instruction == "#reply":
         auto_reply = (arg == "on")
-        send_to_phone(f"自动回复: {'开' if auto_reply else '关'}")
+        send_to_phone("自动回复: " + ("开" if auto_reply else "关"))
     elif instruction == "#name":
         if arg:
-            uart.write(f"AT+NAME{arg}\r\n".encode())
+            uart.write("AT+NAME" + arg + "\r\n")
             time.sleep_ms(300)
-            uart.write(b"AT+RESET\r\n")
-            send_to_phone(f"改名 {arg} 并重启中...")
+            uart.write("AT+RESET\r\n")
+            send_to_phone("改名 " + arg + " 并重启中...")
         else:
             send_to_phone("用法: #name BT37")
     elif instruction == "#reset":
-        uart.write(b"AT+RESET\r\n")
+        uart.write("AT+RESET\r\n")
         send_to_phone("BT37 重启中...")
     else:
-        send_to_phone(f"未知指令: {instruction}  (发送 #help 查看帮助)")
+        send_to_phone("未知指令: " + instruction + " (发 #help)")
 
 # ===== 启动 ================================================
 blink(2)
 send_to_phone("")
 send_to_phone("=== PR2040 + BT37 就绪 ===")
-send_to_phone('发送 #help 查看指令')
+send_to_phone("发 #help 查看指令")
 
 # ===== 主循环 ================================================
+last_recv = 0
 while True:
-    # 读取 UART（手机→BT37→Pico）
+    now = time.ticks_ms()
+
+    # 读蓝牙 (手机 → Pico)
     if uart.any():
-        raw = uart.read()
-        if raw:
-            buf += raw
-            # 按换行分割处理
+        chunk = uart.read()
+        if chunk:
+            buf += chunk
+            last_recv = now
             while b"\n" in buf:
                 line, buf = buf.split(b"\n", 1)
-                line = line.strip()
-                if not line:
-                    continue
+                _process_line(line)
 
-                text = line.decode("utf-8")
-                n = len(text)
+    # 超时兜底: 没换行也处理
+    if buf and (now - last_recv > 200):
+        _process_line(buf.strip())
+        buf = b""
 
-                print(f"[收] {text}")
-
-                # LED 闪烁
-                blink(n)
-
-                # 判断是否命令
-                if text.startswith("#"):
-                    process_command(text)
-                elif auto_reply:
-                    reply = f"Pico: 收到{n}字符 -> {text}\r\n"
-                    uart.write(reply.encode())
-                    print(f"[发] {reply.strip()}")
-
-    # USB 串口输入 (Thonny Shell → 手机)
+    # USB 输入 (Thonny → 手机)
     if usb_poller.poll(0):
         usb_line = sys.stdin.readline()
         if usb_line:
             usb_line = usb_line.strip()
             if usb_line:
-                uart.write((usb_line + "\r\n").encode())
-                print(f"[USB→手机] {usb_line}")
+                uart.write(usb_line + "\r\n")
+                print("[USB→手机] " + usb_line)
 
     time.sleep_ms(5)
