@@ -241,7 +241,15 @@ class BleService {
     if (_txCharacteristic == null || _state != BleConnectionState.connected) {
       throw Exception('Not connected');
     }
-    await _txCharacteristic!.write(data, withoutResponse: false);
+    // 根据特征值属性自动选择写入模式
+    // BT37 (FFE2) 只支持 WriteWithoutResponse
+    // Nordic UART (6E400002) 支持 WriteWithResponse
+    final props = _txCharacteristic!.properties;
+    if (props.writeWithoutResponse) {
+      await _txCharacteristic!.write(data, withoutResponse: true);
+    } else {
+      await _txCharacteristic!.write(data, withoutResponse: false);
+    }
   }
 
   // ─── 读取 RSSI ──────────────────────────────────────────

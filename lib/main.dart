@@ -382,7 +382,7 @@ class _BleChatPageState extends State<BleChatPage> {
       setState(() { _txCount += data.length; _messages.add('>> ${_formatData(data, _txHex)}'); });
       _inputCtrl.clear();
       _scrollToBottom();
-    } catch (_) { _showSnack('发送失败'); }
+    } catch (e) { _showSnack('发送失败: $e'); }
   }
 
   void _showSnack(String msg) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
