@@ -172,22 +172,40 @@ class BleService {
     _setState(BleConnectionState.connecting);
 
     try {
-      // 监听连接状态
+      // 先断开已有连接
+      if (device.isConnected) {
+        await device.disconnect();
+        await Future.delayed(const Duration(milliseconds: 500));
+      }
+
+      // 监听连接状态变化
+      // 注意: connectionState 在开始监听时可能会立即发出当前状态
+      // 如果之前是 disconnected，连接成功后会先发 disconnected → 再发 connected
+      // 所以我们只在真正 connected 之后才响应 disconnected 事件
       _connectionSub = device.connectionState.listen((state) {
         if (state == BluetoothConnectionState.disconnected) {
-          _setState(BleConnectionState.disconnected);
-          _cleanup();
+          if (_state == BleConnectionState.connected) {
+            // 确实是已连接状态下的断开
+            _cleanup();
+            _setState(BleConnectionState.disconnected);
+          }
+          // 忽略连接过程中的 disconnected 事件（旧状态残留）
         }
       });
 
-      await device.connect(mtu: 512);
+      // 连接（自动发现服务 + 协商 MTU）
+      await device.connect(mtu: 512, timeout: const Duration(seconds: 15));
+
+      // 等待连接稳定
+      await Future.delayed(const Duration(milliseconds: 300));
+
       _setState(BleConnectionState.connected);
 
       // 发现服务
       await _discoverServices();
     } catch (e) {
-      _setState(BleConnectionState.disconnected);
       _cleanup();
+      _setState(BleConnectionState.disconnected);
       rethrow;
     }
   }
@@ -238,17 +256,34 @@ class BleService {
 
   // ─── 写入数据 ────────────────────────────────────────────
   Future<void> write(Uint8List data) async {
-    if (_txCharacteristic == null || _state != BleConnectionState.connected) {
-      throw Exception('Not connected');
+    if (_txCharacteristic == null) {
+      throw Exception('特征值为空，请重新连接');
     }
-    // 根据特征值属性自动选择写入模式
-    // BT37 (FFE2) 只支持 WriteWithoutResponse
-    // Nordic UART (6E400002) 支持 WriteWithResponse
+    if (_state != BleConnectionState.connected) {
+      throw Exception('设备已断开');
+    }
+
     final props = _txCharacteristic!.properties;
-    if (props.writeWithoutResponse) {
+
+    // Nordic UART (6E400002): 优先 WriteWithResponse
+    // BT37 (FFE2): 只支持 WriteWithoutResponse
+    // 先试 withResponse, 若失败再试 withoutResponse
+    if (props.write) {
+      try {
+        await _txCharacteristic!.write(data, withoutResponse: false);
+        return;
+      } catch (e) {
+        // 如果写带响应失败，且支持无响应，再试一次
+        if (props.writeWithoutResponse) {
+          await _txCharacteristic!.write(data, withoutResponse: true);
+          return;
+        }
+        rethrow;
+      }
+    } else if (props.writeWithoutResponse) {
       await _txCharacteristic!.write(data, withoutResponse: true);
     } else {
-      await _txCharacteristic!.write(data, withoutResponse: false);
+      throw Exception('特征值不可写入');
     }
   }
 
